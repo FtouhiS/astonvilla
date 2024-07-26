@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage ("Clean up"){
             steps {
-                sh 'rm -rf /root/.jenkins/workspace/astonvilla-soulaima/*'
+                sh 'rm -rf /var/lib/jenkins/workspace/astonvilla-soulaima/*'
                 sh 'ls'
             }
         }
