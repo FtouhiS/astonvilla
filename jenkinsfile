@@ -15,7 +15,7 @@ pipeline {
         stage ("Generate docker image") {
             steps {
                  dir("astonvilla"){
-                    sh "docker build -t soulaimaft98933/astonvilla:1.1.0${env.BUILD_NUMBER} ."
+                    sh "docker build -t soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER} ."
                 }                
             }
         }
