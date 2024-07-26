@@ -24,7 +24,7 @@ pipeline {
                  dir("astonvilla"){
                     sh "docker login -u soulaimaft98933 -p soulaimaftdocker"
 
-                    sh "docker push astonvilaa soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
+                    sh "docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
                 }                
             }
         }
