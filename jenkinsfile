@@ -1,31 +1,45 @@
 pipeline {
     agent any 
     stages {
-        stage ("Clean up"){
+        stage ("Clean up") {
             steps {
                 sh 'rm -rf /var/lib/jenkins/workspace/astonvilla-soulaima/*'
+                sh 'docker system prune -a -f' // Clean up unused Docker images
                 sh 'ls'
             }
         }
-        stage ("Clone repo"){
+        stage ("Clone repo") {
             steps {
                 sh "git clone https://github.com/FtouhiS/astonvilla.git"
             }
         }
         stage ("Generate docker image") {
             steps {
-                 dir("astonvilla"){
-                    sh "docker build -t soulaimaft98933/astonvilla:1.1.0${env.BUILD_NUMBER} ."
+                dir("astonvilla") {
+                    script {
+                        def imageTag = "soulaimaft98933/astonvilla:1.1.0${env.BUILD_NUMBER}"
+                        sh "docker build -t ${imageTag} ."
+                        sh "docker images" // List images to verify the tag
+                        echo "Image tagged as ${imageTag}"
+                    }
                 }                
             }
         }
-        stage ("push docker image") {
+        stage ("Push docker image") {
             steps {
-                 dir("astonvilla"){
-                    sh "docker login -u soulaimaft98933 -p soulaimaftdocker"
-
-                    sh "docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
-                }                
+                dir("astonvilla") {
+                    script {
+                        def imageTag = "soulaimaft98933/astonvilla:1.1.0${env.BUILD_NUMBER}"
+                        withCredentials([usernamePassword(credentialsId: 'docker-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                            // Log in to Docker Hub
+                            sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
+                            // Verify image exists locally
+                            sh "docker images | grep ${imageTag}" // Verify the image exists before pushing
+                            // Push the image
+                            sh "docker push ${imageTag}"
+                        }
+                    }
+                }
             }
         }
     }
