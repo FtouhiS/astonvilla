@@ -1,27 +1,30 @@
 pipeline {
     agent any 
+    environment {
+        SONAR_SCANNER_HOME = tool 'SonarQube Scanner' // Replace with the configured name for SonarQube Scanner in Jenkins
+    }
     stages {
-        stage ("Clean up"){
+        stage ("Clean up") {
             steps {
                 sh 'rm -rf /var/lib/jenkins/workspace/astonvilla-soulaima/*'
                 sh 'ls'
             }
         }
-        stage ("Clone repo"){
+        stage ("Clone repo") {
             steps {
                 sh "git clone https://github.com/FtouhiS/astonvilla.git"
             }
         }
         stage ("Generate docker image") {
             steps {
-                 dir("astonvilla"){
+                 dir("astonvilla") {
                     sh "docker build -t soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER} ."
                 }                
             }
         }
         stage ("Push docker image") {
             steps {
-                 dir("astonvilla"){
+                 dir("astonvilla") {
                     sh "docker login -u soulaimaft98933 -p soulaimaftdocker"
                     sh "docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
                 }                
@@ -30,13 +33,25 @@ pipeline {
         stage ("SonarQube Analysis") {
             steps {
                 script {
-                    withSonarQubeEnv('SonarQube') { // Use the name configured in Jenkins
-                        dir('astonvilla') {
-                            sh 'sonar-scanner'
+                    withCredentials([usernamePassword(credentialsId: 'sonar-credentials-id', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')]) {
+                        withSonarQubeEnv('SonarQube') { // Replace 'SonarQube' with the configured name for SonarQube server in Jenkins
+                            dir('astonvilla') {
+                                sh "${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                                    -Dsonar.projectKey=my_project_key \
+                                    -Dsonar.sources=. \
+                                    -Dsonar.host.url=http://your-sonarqube-server:9000 \
+                                    -Dsonar.login=${SONAR_USER} \
+                                    -Dsonar.password=${SONAR_PASS}"
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline completed.'
         }
     }
 }
