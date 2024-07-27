@@ -19,15 +19,24 @@ pipeline {
                 }                
             }
         }
-        stage ("push docker image") {
+        stage ("Push docker image") {
             steps {
                  dir("astonvilla"){
                     sh "docker login -u soulaimaft98933 -p soulaimaftdocker"
-
                     sh "docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
                 }                
             }
         }
-        
+        stage ("SonarQube Analysis") {
+            steps {
+                script {
+                    withSonarQubeEnv('SonarQube') { // Use the name configured in Jenkins
+                        dir('astonvilla') {
+                            sh 'sonar-scanner'
+                        }
+                    }
+                }
+            }
+        }
     }
 }
