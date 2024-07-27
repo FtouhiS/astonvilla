@@ -19,11 +19,10 @@ pipeline {
                 }                
             }
         }
-        stage ("push docker image") {
+        stage ("Push docker image") {
             steps {
                  dir("astonvilla"){
                     sh "docker login -u soulaimaft98933 -p soulaimaftdocker"
-
                     sh "docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
                 }                
             }
@@ -34,11 +33,13 @@ pipeline {
                     // Define SonarQube environment variables
                     def sonarEnv = [
                         'SONAR_HOST_URL': 'http://192.168.2.18:9000/', // Update if necessary
+                        'SONAR_LOGIN': 'admin',
+                        'SONAR_PASSWORD': 'sonar'
                     ]
                     
                     withEnv(sonarEnv) {
                         dir('astonvilla') {
-                            sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=astonvilla -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_AUTH_TOKEN}'
+                            sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=astonvilla -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_LOGIN} -Dsonar.password=${SONAR_PASSWORD}'
                         }
                     }
                 }
