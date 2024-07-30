@@ -1,7 +1,7 @@
 pipeline {
     agent any 
     environment {
-        SONARQUBE_URL = 'http://192.168.2.18:9000/'
+        SONARQUBE_URL = 'http://your-sonarqube-server-url'
         SONARQUBE_TOKEN = credentials('astonvilla-token') // Jenkins credentials ID for SonarQube token
     }
     stages {
@@ -32,6 +32,12 @@ pipeline {
             }
         }
         stage('SonarQube analysis') {
+            agent {
+                docker {
+                    image 'sonarsource/sonar-scanner-cli:latest' // Use the SonarQube Scanner Docker image
+                    args '-v $WORKSPACE:/usr/src'
+                }
+            }
             steps {
                 withSonarQubeEnv('SonarQube') { // Assuming 'SonarQube' is the name of your SonarQube instance configured in Jenkins
                     dir("astonvilla") {
