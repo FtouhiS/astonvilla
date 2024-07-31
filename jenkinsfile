@@ -1,32 +1,47 @@
 pipeline {
     agent any 
+
     stages {
-        stage ("Clean up"){
+        stage ("Clean up") {
             steps {
                 sh 'rm -rf /var/lib/jenkins/workspace/astonvilla-soulaima/*'
                 sh 'ls'
             }
         }
-        stage ("Clone repo"){
+        stage ("Clone repo") {
             steps {
                 sh "git clone https://github.com/FtouhiS/astonvilla.git"
             }
         }
         stage ("Generate docker image") {
             steps {
-                 dir("astonvilla"){
+                 dir("astonvilla") {
                     sh "docker build -t soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER} ."
                 }                
             }
         }
         stage ("Push docker image") {
             steps {
-                 dir("astonvilla"){
+                 dir("astonvilla") {
                     sh "docker login -u soulaimaft98933 -p soulaimaftdocker"
                     sh "docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
                 }                
             }
         }
-       
+        stage ("SonarQube Analysis") {
+            steps {
+                script {
+                    // Set SonarQube environment variables
+                    def sonarHostUrl = 'http://192.168.2.18:9000/'
+                    def sonarQubeScannerHome = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    
+                    withSonarQubeEnv('SonarQube') {
+                        dir('astonvilla') {
+                            sh "${sonarQubeScannerHome}/bin/sonar-scanner -Dsonar.projectKey=astonvilla -Dsonar.sources=. -Dsonar.host.url=${sonarHostUrl} -Dsonar.login=${sqp_f3d82c17531049d99c06f8d6c8d02c1f2fbfbf05}"
+                        }
+                    }
+                }
+            }
+        }
     }
 }
