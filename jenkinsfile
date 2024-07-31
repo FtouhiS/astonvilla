@@ -17,7 +17,7 @@ pipeline {
             steps {
                  dir("astonvilla") {
                     sh "docker build -t soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER} ."
-                }                
+                 }                
             }
         }
         stage ("Push docker image") {
@@ -25,20 +25,22 @@ pipeline {
                  dir("astonvilla") {
                     sh "docker login -u soulaimaft98933 -p soulaimaftdocker"
                     sh "docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
-                }                
+                 }                
             }
         }
-        stage ("SonarQube Analysis") {
+        stage('SonarQube Analysis') {
+            environment {
+                SONARQUBE_SERVER = 'SonarQube' // Name of the SonarQube server configuration in Jenkins
+                SONAR_TOKEN = credentials('astonvilla-token') // Reference to the SonarQube token stored in Jenkins credentials
+            }
             steps {
                 script {
-                    // Set SonarQube environment variables
-                    def sonarHostUrl = 'http://192.168.2.18:9000/'
-                    def sonarQubeScannerHome = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                    
+                    // Make sure SonarQube environment is properly set
                     withSonarQubeEnv('SonarQube') {
-                        dir('astonvilla') {
-                            sh "${sonarQubeScannerHome}/bin/sonar-scanner -Dsonar.projectKey=astonvilla -Dsonar.sources=. -Dsonar.host.url=${sonarHostUrl} -Dsonar.login=${sqp_f3d82c17531049d99c06f8d6c8d02c1f2fbfbf05}"
-                        }
+                        // Set the SonarQube token as an environment variable
+                        sh "export SONAR_TOKEN=${SONAR_TOKEN}"
+                        // Run SonarQube analysis
+                        sh 'sonar-scanner -Dsonar.login=${SONAR_TOKEN}'
                     }
                 }
             }
