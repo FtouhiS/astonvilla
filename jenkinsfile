@@ -1,49 +1,32 @@
 pipeline {
     agent any 
-
     stages {
-        stage ("Clean up") {
+        stage ("Clean up"){
             steps {
                 sh 'rm -rf /var/lib/jenkins/workspace/astonvilla-soulaima/*'
                 sh 'ls'
             }
         }
-        stage ("Clone repo") {
+        stage ("Clone repo"){
             steps {
                 sh "git clone https://github.com/FtouhiS/astonvilla.git"
             }
         }
         stage ("Generate docker image") {
             steps {
-                 dir("astonvilla") {
+                 dir("astonvilla"){
                     sh "docker build -t soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER} ."
-                 }                
+                }                
             }
         }
         stage ("Push docker image") {
             steps {
-                 dir("astonvilla") {
+                 dir("astonvilla"){
                     sh "docker login -u soulaimaft98933 -p soulaimaftdocker"
                     sh "docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
-                 }                
+                }                
             }
         }
-        stage('SonarQube Analysis') {
-            environment {
-                SONARQUBE_SERVER = 'SonarQube' // Name of the SonarQube server configuration in Jenkins
-                SONAR_TOKEN = credentials('astonvilla-token') // Reference to the SonarQube token stored in Jenkins credentials
-            }
-            steps {
-                script {
-                    // Make sure SonarQube environment is properly set
-                    withSonarQubeEnv('SonarQube') {
-                        // Set the SonarQube token as an environment variable
-                        sh "export SONAR_TOKEN=${SONAR_TOKEN}"
-                        // Run SonarQube analysis
-                        sh 'sonar-scanner -Dsonar.login=${SONAR_TOKEN}'
-                    }
-                }
-            }
-        }
+       
     }
 }
