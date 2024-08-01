@@ -17,7 +17,7 @@ pipeline {
         }
         stage ("SonarQube Analysis") {
             environment {
-                scannerHome = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                scannerHome = tool name: 'SonarQubeScanner'
             }
             steps {
                 dir("astonvilla") {
@@ -55,9 +55,15 @@ pipeline {
     }
     post {
         failure {
-            mail to: 'soulaima.ftouhi@esprit.tn',
-                subject: "Jenkins Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' Failed",
-                body: "Check Jenkins job details at ${env.BUILD_URL}"
+            script {
+                // Log a failure message
+                echo "Build failed. Sending failure notification email."
+
+                // Configure email notifications
+                mail to: 'youremail@example.com',
+                    subject: "Jenkins Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' Failed",
+                    body: "Build failed. Check Jenkins job details at ${env.BUILD_URL}"
+            }
         }
     }
 }
