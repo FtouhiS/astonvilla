@@ -21,7 +21,7 @@ pipeline {
             }
             steps {
                 dir("astonvilla") {
-                    withCredentials([string(credentialsId: 'astonvilla-token', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'astonvilla-sonar', variable: 'SONAR_TOKEN')]) {
                         sh """
                             ${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=astonvilla \
