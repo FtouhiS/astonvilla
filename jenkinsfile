@@ -1,8 +1,8 @@
 pipeline {
     agent any 
     environment {
-        SONAR_HOST_URL = 'http://192.168.2.18:9000/' // or use ${env.SONARQUBE_URL} if Jenkins manages it as a global environment variable
-        SONAR_TOKEN = credentials('astonvilla-token') // Ensure 'astonvilla-token' is configured in Jenkins Credentials
+        SONAR_HOST_URL = 'http://192.168.2.18:9000/' 
+        SONAR_TOKEN = credentials('astonvilla-token')
     }
     stages {
         stage ("Clean up"){
@@ -18,15 +18,17 @@ pipeline {
         }
         stage ("SonarQube Analysis") {
             environment {
-                scannerHome = tool 'SonarQube Scanner' // Use your SonarQube scanner installation name
+                scannerHome = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
             }
             steps {
                 dir("astonvilla") {
-                    sh "${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=astonvilla \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_TOKEN}"
+                    withEnv(["SONAR_TOKEN=${SONAR_TOKEN}"]) {
+                        sh "${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=astonvilla \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.login=$SONAR_TOKEN"
+                    }
                 }
             }
         }
