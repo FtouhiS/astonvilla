@@ -18,7 +18,7 @@ pipeline {
         }
         stage ("SonarQube Analysis") {
             environment {
-                scannerHome = tool 'SonarQubeScanner' // Use your SonarQube scanner installation name
+                scannerHome = tool 'SonarQube Scanner' // Use your SonarQube scanner installation name
             }
             steps {
                 dir("astonvilla") {
