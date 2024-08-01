@@ -17,17 +17,17 @@ pipeline {
         }
         stage ("SonarQube Analysis") {
             environment {
-                scannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                scannerHome = tool name: 'SonarQube', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
             }
             steps {
                 dir("astonvilla") {
-                    withCredentials([string(credentialsId: 'astonvilla-token', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'astonvilla-sonar', variable: 'SONAR_TOKEN')]) {
                         sh """
                             ${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=astonvilla \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=${SONAR_HOST_URL} \
-                            -Dsonar.login=sqp_f3d82c17531049d99c06f8d6c8d02c1f2fbfbf05
+                            -Dsonar.login=${SONAR_TOKEN}
                         """
                     }
                 }
