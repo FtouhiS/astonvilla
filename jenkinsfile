@@ -27,7 +27,7 @@ pipeline {
                             -Dsonar.projectKey=astonvilla \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=${SONAR_HOST_URL} \
-                            -Dsonar.login=${SONAR_TOKEN}
+                            -Dsonar.login=sqp_f3d82c17531049d99c06f8d6c8d02c1f2fbfbf05
                         """
                     }
                 }
