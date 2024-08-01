@@ -17,7 +17,7 @@ pipeline {
         }
         stage ("SonarQube Analysis") {
             environment {
-                scannerHome = tool name: 'SonarQubeScanner'
+                scannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
             }
             steps {
                 dir("astonvilla") {
