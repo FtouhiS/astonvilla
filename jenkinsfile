@@ -21,7 +21,7 @@ pipeline {
             }
             steps {
                 dir("astonvilla") {
-                    withCredentials([string(credentialsId: 'astonvilla-sonar', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'astonvilla-token-sonar', variable: 'SONAR_TOKEN')]) {
                         sh """
                             export SONAR_TOKEN=${SONAR_TOKEN}
                             ${scannerHome}/bin/sonar-scanner \
