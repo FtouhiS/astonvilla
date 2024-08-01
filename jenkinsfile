@@ -22,16 +22,13 @@ pipeline {
             steps {
                 dir("astonvilla") {
                     withCredentials([string(credentialsId: 'astonvilla-sonar', variable: 'SONAR_TOKEN')]) {
-                        script {
-                            // Debugging: Print the SonarQube host URL (make sure not to print sensitive information)
-                            echo "SONAR_HOST_URL: ${env.SONAR_HOST_URL}"
+                        withEnv(["SONAR_TOKEN=${env.SONAR_TOKEN}"]) {
                             sh """
-                                echo "SonarQube Token: ${env.SONAR_TOKEN}"  # Caution: avoid printing sensitive tokens in production
                                 ${scannerHome}/bin/sonar-scanner \
                                 -Dsonar.projectKey=astonvilla \
                                 -Dsonar.sources=. \
                                 -Dsonar.host.url=${env.SONAR_HOST_URL} \
-                                -Dsonar.login=${env.SONAR_TOKEN}
+                                -Dsonar.login=${SONAR_TOKEN}
                             """
                         }
                     }
