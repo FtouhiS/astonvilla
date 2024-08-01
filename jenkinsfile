@@ -21,7 +21,7 @@ pipeline {
             }
             steps {
                 dir("astonvilla") {
-                    withCredentials([string(credentialsId: 'astonvilla-token', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'astonvilla-sonar', variable: 'SONAR_TOKEN')]) {
                         script {
                             // Debugging: Print the SonarQube host URL (make sure not to print sensitive information)
                             echo "SONAR_HOST_URL: ${env.SONAR_HOST_URL}"
