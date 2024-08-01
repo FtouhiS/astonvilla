@@ -42,14 +42,10 @@ pipeline {
         }
         stage ("Push docker image") {
             steps {
-                dir("astonvilla") {
-                    withCredentials([usernamePassword(credentialsId: 'docker-credentials-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh """
-                            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-                            docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}
-                        """
-                    }
-                }
+                 dir("astonvilla"){
+                    sh "docker login -u soulaimaft98933 -p soulaimaftdocker"
+                    sh "docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
+                }                
             }
         }
     }
@@ -60,7 +56,7 @@ pipeline {
                 echo "Build failed. Sending failure notification email."
 
                 // Configure email notifications
-                mail to: 'youremail@example.com',
+                mail to: 'soulaima.ftouhi@esprit.tn',
                     subject: "Jenkins Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' Failed",
                     body: "Build failed. Check Jenkins job details at ${env.BUILD_URL}"
             }
