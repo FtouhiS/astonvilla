@@ -4,13 +4,13 @@ pipeline {
         SONAR_HOST_URL = 'http://192.168.2.18:9000/' 
     }
     stages {
-        stage ("Clean up"){
+        stage ("Clean up") {
             steps {
                 sh 'rm -rf /var/lib/jenkins/workspace/astonvilla-soulaima/*'
                 sh 'ls'
             }
         }
-        stage ("Clone repo"){
+        stage ("Clone repo") {
             steps {
                 sh "git clone https://github.com/FtouhiS/astonvilla.git"
             }
@@ -22,29 +22,42 @@ pipeline {
             steps {
                 dir("astonvilla") {
                     withCredentials([string(credentialsId: 'astonvilla-token', variable: 'SONAR_TOKEN')]) {
-                        sh "${scannerHome}/bin/sonar-scanner \
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=astonvilla \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=${SONAR_HOST_URL} \
-                            -Dsonar.login=${SONAR_TOKEN}"
+                            -Dsonar.login=${SONAR_TOKEN}
+                        """
                     }
                 }
             }
         }
         stage ("Generate docker image") {
             steps {
-                dir("astonvilla"){
+                dir("astonvilla") {
                     sh "docker build -t soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER} ."
-                }                
+                }
             }
         }
         stage ("Push docker image") {
             steps {
-                dir("astonvilla"){
-                    sh "docker login -u soulaimaft98933 -p soulaimaftdocker"
-                    sh "docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
-                }                
+                dir("astonvilla") {
+                    withCredentials([usernamePassword(credentialsId: 'docker-credentials-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+                            docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}
+                        """
+                    }
+                }
             }
+        }
+    }
+    post {
+        failure {
+            mail to: 'soulaima.ftouhi@esprit.tn',
+                subject: "Jenkins Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' Failed",
+                body: "Check Jenkins job details at ${env.BUILD_URL}"
         }
     }
 }
