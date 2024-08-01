@@ -1,5 +1,9 @@
 pipeline {
     agent any 
+    environment {
+        SONAR_HOST_URL = 'http://192.168.2.18:9000/' // or use ${env.SONARQUBE_URL} if Jenkins manages it as a global environment variable
+        SONAR_TOKEN = credentials('astonvilla-token') // Ensure 'astonvilla-token' is configured in Jenkins Credentials
+    }
     stages {
         stage ("Clean up"){
             steps {
@@ -12,21 +16,34 @@ pipeline {
                 sh "git clone https://github.com/FtouhiS/astonvilla.git"
             }
         }
+        stage ("SonarQube Analysis") {
+            environment {
+                scannerHome = tool 'SonarQubeScanner' // Use your SonarQube scanner installation name
+            }
+            steps {
+                dir("astonvilla") {
+                    sh "${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=astonvilla \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}"
+                }
+            }
+        }
         stage ("Generate docker image") {
             steps {
-                 dir("astonvilla"){
+                dir("astonvilla"){
                     sh "docker build -t soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER} ."
                 }                
             }
         }
         stage ("Push docker image") {
             steps {
-                 dir("astonvilla"){
+                dir("astonvilla"){
                     sh "docker login -u soulaimaft98933 -p soulaimaftdocker"
                     sh "docker push soulaimaft98933/astonvilla:1.1.${env.BUILD_NUMBER}"
                 }                
             }
         }
-       
     }
 }
