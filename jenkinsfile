@@ -49,17 +49,5 @@ pipeline {
             }
         }
     }
-    post {
-        failure {
-            script {
-                // Log a failure message
-                echo "Build failed. Sending failure notification email."
-
-                // Configure email notifications
-                mail to: 'soulaima.ftouhi@esprit.tn',
-                    subject: "Jenkins Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' Failed",
-                    body: "Build failed. Check Jenkins job details at ${env.BUILD_URL}"
-            }
-        }
-    }
+    
 }
