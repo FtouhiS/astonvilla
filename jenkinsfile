@@ -48,28 +48,18 @@ pipeline {
                 }                
             }
         }
-    }
-post {
-    success {
-        retry(2) {
-            emailext (
-                subject: "SUCCESS: Jenkins Pipeline '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: "The Jenkins Pipeline has been successfully completed.\n\nProject: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\n\nCheck the console output at ${env.BUILD_URL} to view the results.",
-                to: "soulaima.ftouhi@esprit.tn",
-                from: "jenkins@example.com"
-            )
+        stage("Test Email") {
+        steps {
+        emailext (
+            subject: "Test Email from Jenkins",
+            body: "This is a test email to check SMTP configuration.",
+            to: "soulaima.ftouhi@esprit.tn",
+            from: "jenkins@example.com"
+        )
         }
     }
-    failure {
-        retry(2) {
-            emailext (
-                subject: "FAILURE: Jenkins Pipeline '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: "The Jenkins Pipeline has failed.\n\nProject: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\n\nCheck the console output at ${env.BUILD_URL} to view the results.",
-                to: "soulaima.ftouhi@esprit.tn",
-                from: "jenkins@example.com"
-            )
-        }
+
     }
-}
+
 
 }
